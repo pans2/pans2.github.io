@@ -1,8 +1,8 @@
 ---
 layout:     post
-title:      "Unix/Linux 扫盲笔记"
-subtitle:   "不适合人类阅读，非常水的自我笔记"
-date:       2020-04-02 
+title:      "Linux上的正则表达式"
+subtitle:   "纪念出道第一份工作的第一篇技术博客"
+date:       2020-04-12 
 author:     "peter"
 header-img: "img/post-bg-unix-linux.jpg"
 catalog: true
@@ -13,15 +13,25 @@ tags:
 > This document is not completed and will be updated anytime.
 
 
-## Unix 
+## Linux 
 
 
-> Unix is a **family** of multitasking, multiuser computer OS.
+> 纪念走进IT世界的第一扇门
+> Linux is a Unix-like and mostly POSIX-compliant computer OS.
+
+当年刚刚走出大学校门踏入社会，接触到的第一份工作就是IT届存储大厂的technical support。从未接触过操作系统的我开启了这扇通往技术道路的大门，也是为了纪念最初，把这篇开山博客献给我热爱的**linux系统**以及曾经工作中经常用到的工具，**正则表达式**。
 
 
-Derive from the original **AT&T Unix**, Developed in the 1970s at **Bell Labs** (贝尔实验室), initially intended for use inside the **Bell System**.
 
-- #### Bell Labs
+## 正则表达式
+
+既然是聊到这个话题，当然要说一下正则表达式的意义和用途。简单来讲，正则表达式就是用来用处字符串的方法，可以通过一些特殊符号的运用来快速的对文本文件进行增删改查的操作。一般来讲，任何一个有经验的运维人员或者是IT从业者，都会熟练的掌握正则表达式。
+
+当初我从事第一份工作技术支持的时候，常常会和企业运维人员进行一些远程桌面解决一些程序错误问题。就在这一次次的远程环境中，我总能看到我的客户熟练的操作着他们的命令行，尤其是当我还停留在**ls**，**cat**，**df -h**这些基本操作的时候，我的客户却已经开始用正则表达式提取各种需要的文本字符串。以至于我心虚的不敢在客户桌面提取我想要的特殊字段，只能让客户把一些配置文件日志文件传给我，我偷偷的线下打开notepad++然后用原始的**CTRL + F**，**CTRL + C**以及**CTRL + V**的方法来拿到我想要的字符串。
+
+这样的悲惨经历让我意识到了文本过滤的重要性，也正是如此让我对正则表达式产生了强烈的好奇心和求知欲。废话不多说，直接进入技术实现。
+
+- #### grep
 Bell 和 AT&A 在那时已经是一家了，可以看到那时的通信公司真是一线 IT 公司呢。 
 **C 语言也是 Bell Labs 的产物**，从一开始就是为了用于 Unix 而设计出来的。所以 Unix （在 73 年用 C 重写）在高校流行后，C 语言也获得了广泛支持。
 
@@ -29,8 +39,10 @@ Bell 和 AT&A 在那时已经是一家了，可以看到那时的通信公司真
 
 AT&T licensed Unix to outside parties(第三方) from the late 1970s, leading to a variety of both **academic** (最有有名的 BSD ) and **commercial** (Microsoft Xenix, IBM AIX, SunOS Solaris)
 
-- #### Xenix
-微软 1979 年从 AT&A 授权来的 Unix OS，配合着 x86 成为当时最受欢迎的 Unix 发行版。后来 M$ 和 IBM 合作开发 OS/2 操作系统后放弃，后来最终转向 **Windows NT**。
+- #### sed
+一旦开始使用了sed命令之后，我就再也不愿意使用cut这样的初级命令，因为cut的限制太多用起来太吃力，渐渐发现sed相比之下足够的强大并且最重要的是可以支持正则表达式的使用。
+
+
 
 - #### BSD
 **Barkeley Software Distribution**, also called Berkeley Unix. Today the term "BSD" is used to refer to any of the BSD descendants(后代) which together form a branch of the family of Unix-like OS.(共同组成了一个分支)
