@@ -48,12 +48,12 @@ ubuntu@ip-10-0-0-144:~$ cat -An /etc/hosts
 ```
 然后执行几个命令看看能不能达到我们想要的效果获取特定的行。
 ```html
-<br> grep -n 'localhost' /etc/hosts     打印有localhost字符串的行
-<br> grep -n 'ff0[02]' /etc/hosts       打印有ff00或者ff02的行
-<br> grep -n 'f[^e]' /etc/hosts         打印有f后面不是e的字符串的行
-<br> grep -n '[^[:lower:]]' /etc/hosts  打印含有不是小写字母的字符串的行
-<br> grep -n '^$' /etc/hosts            打印出所有空白行
-<br> grep -n '^[^$]' /etc/hosts         打印出所有非空白行
+grep -n 'localhost' /etc/hosts     打印有localhost字符串的行
+grep -n 'ff0[02]' /etc/hosts       打印有ff00或者ff02的行
+grep -n 'f[^e]' /etc/hosts         打印有f后面不是e的字符串的行
+grep -n '[^[:lower:]]' /etc/hosts  打印含有不是小写字母的字符串的行
+grep -n '^$' /etc/hosts            打印出所有空白行
+grep -n '^[^$]' /etc/hosts         打印出所有非空白行
 ```
 需要注意的是* 的用法，代表的是重复0个或多个前面的RE字符。因此如果是“f* ”，那么有没有字符其实是都可以显示出来，如果后面再接一个字符的话，则只要含有后面那个字符就可以打印出来。看下面的例子可以作为证明。
 ```html
@@ -92,11 +92,11 @@ fdsfsefefefsfefsefef
 ```
 假设我们有上述一个名字叫test.test的文件，然后分别执行下面的语句。为了能打印出行号，可以使用nl代替cat。下面的sed直接接动作省略了-e。
 ```html
-<br> nl test.test | sed '2a test'           第二行下面一行新增一行test
-<br> nl test.test | sed '6,7c test'         第六第七行替换成一行test
-<br> nl test.test | sed '2,5d'              删除第二行到第五行，d后面如果接test会报错
-<br> nl test.test | sed '6,7i test'         第六行和第七行上面分别插入一行test
-<br> nl test.test | sed -n '6,7p'           只打印出6-7行，如果这时候不用-n的话，6-7行会反复输出，这就是安静模式的作用配合p的动作执行
+nl test.test | sed '2a test'           第二行下面一行新增一行test
+nl test.test | sed '6,7c test'         第六第七行替换成一行test
+nl test.test | sed '2,5d'              删除第二行到第五行，d后面如果接test会报错
+nl test.test | sed '6,7i test'         第六行和第七行上面分别插入一行test
+nl test.test | sed -n '6,7p'           只打印出6-7行，如果这时候不用-n的话，6-7行会反复输出，这就是安静模式的作用配合p的动作执行
 ```
 
 - #### sed正则表达
@@ -115,15 +115,15 @@ FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=15
 - #### 正则表达式字符
 通过上述的命令行来详细介绍一下几个特殊字符的作用。
 ```html
-<br> ^word   待查找的字符串word在行首
-<br> word$   待查找的字符串word在行尾
-<br> .       代表一定有一个任意字符的字符
-<br> *       重复0-无穷多个前一个字符 
-<br> \       转义字符
-<br> [abc]   字符集合中找出含a或b或c的字符串
-<br> [n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
-<br> [^list] 字符集合中找出不是list的字符串
-<br> \{n,m\} 连续n到m个前一个字符
+^word   待查找的字符串word在行首
+word$   待查找的字符串word在行尾
+.       代表一定有一个任意字符的字符
+*       重复0-无穷多个前一个字符 
+\       转义字符
+[abc]   字符集合中找出含a或b或c的字符串
+[n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
+[^list] 字符集合中找出不是list的字符串
+\{n,m\} 连续n到m个前一个字符
 ```
 所以在上述命令中 .* 代表任意字符重复多次，（.* ）代表第一个分组是FTS到pid字符串中的字符，([^:]* )代表第二个分组是pid之后，第一个：之前的字符串。然后我们讲整行内容替换成FTS+第一个分组内容+pid+第二个分组内容。显示出来的就是我们要的字段了。
 
