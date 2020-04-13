@@ -18,7 +18,7 @@ tags:
 
 
 > 纪念走进IT世界的第一扇门
-<br>> Linux is a Unix-like and mostly POSIX-compliant computer OS.
+<br> Linux is a Unix-like and mostly POSIX-compliant computer OS.
 
 当年刚刚走出大学校门踏入社会，接触到的第一份工作就是IT届存储大厂的technical support。从未接触过操作系统的我开启了这扇通往技术道路的大门，也是为了纪念最初，把这篇开山博客献给我热爱的**linux系统**以及曾经工作中经常用到的工具，**正则表达式**。
 
@@ -114,17 +114,15 @@ FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=15
 
 - #### 正则表达式字符
 通过上述的命令行来详细介绍一下几个特殊字符的作用。
-```html
-^word   待查找的字符串word在行首
-word$   待查找的字符串word在行尾
-.       代表一定有一个任意字符的字符
-*       重复0-无穷多个前一个字符 
-\       转义字符
-[abc]   字符集合中找出含a或b或c的字符串
-[n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
-[^list] 字符集合中找出不是list的字符串
-\{n,m\} 连续n到m个前一个字符
-```
+<br> ^word   待查找的字符串word在行首
+<br> word$   待查找的字符串word在行尾
+<br> .       代表一定有一个任意字符的字符
+<br> *       重复0-无穷多个前一个字符 
+<br> \       转义字符
+<br> [abc]   字符集合中找出含a或b或c的字符串
+<br> [n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
+<br> [^list] 字符集合中找出不是list的字符串
+<br> \{n,m\} 连续n到m个前一个字符
 
 所以在上述命令中 .* 代表任意字符重复多次，（.* ）代表第一个分组是FTS到pid字符串中的字符，([^:]* )代表第二个分组是pid之后，第一个：之前的字符串。然后我们讲整行内容替换成FTS+第一个分组内容+pid+第二个分组内容。显示出来的就是我们要的字段了。
 
