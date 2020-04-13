@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Linux上的正则表达式"
-subtitle:   "纪念出道第一份工作的第一篇技术博客"
+subtitle:   "第一篇博客致敬linux启蒙教育"
 date:       2020-04-12 
 author:     "peter"
 header-img: "img/post-bg-unix-linux.jpg"
@@ -11,6 +11,7 @@ tags:
 ---
 
 > This document is not completed and will be updated anytime.
+> 会持续不断地补充更多正则表达式的案例到文章中
 
 
 ## Linux 
@@ -22,192 +23,120 @@ tags:
 当年刚刚走出大学校门踏入社会，接触到的第一份工作就是IT届存储大厂的technical support。从未接触过操作系统的我开启了这扇通往技术道路的大门，也是为了纪念最初，把这篇开山博客献给我热爱的**linux系统**以及曾经工作中经常用到的工具，**正则表达式**。
 
 
-
 ## 正则表达式
 
 既然是聊到这个话题，当然要说一下正则表达式的意义和用途。简单来讲，正则表达式就是用来用处字符串的方法，可以通过一些特殊符号的运用来快速的对文本文件进行增删改查的操作。一般来讲，任何一个有经验的运维人员或者是IT从业者，都会熟练的掌握正则表达式。
 
-当初我从事第一份工作技术支持的时候，常常会和企业运维人员进行一些远程桌面解决一些程序错误问题。就在这一次次的远程环境中，我总能看到我的客户熟练的操作着他们的命令行，尤其是当我还停留在**ls**，**cat**，**df -h**这些基本操作的时候，我的客户却已经开始用正则表达式提取各种需要的文本字符串。以至于我心虚的不敢在客户桌面提取我想要的特殊字段，只能让客户把一些配置文件日志文件传给我，我偷偷的线下打开notepad++然后用原始的**CTRL + F**，**CTRL + C**以及**CTRL + V**的方法来拿到我想要的字符串。
+当初我从事第一份工作技术支持的时候，常常会和企业运维人员进行一些远程桌面解决一些程序错误问题。就在这一次次的远程环境中，我总能看到我的客户熟练的操作着他们的命令行，尤其是当我还停留在**ls**，**cat**，**df -h**这些基本操作的时候，我的客户却在熟练的运用正则表达式提取各种需要的文本字符串。以至于我心虚的不敢在客户桌面提取我想要的特殊字段，只能让客户把一些配置文件日志文件传给我，我偷偷的线下打开notepad++然后用原始的**CTRL + F**，**CTRL + C**以及**CTRL + V**的方法来拿到我想要的字符串。
 
-这样的悲惨经历让我意识到了文本过滤的重要性，也正是如此让我对正则表达式产生了强烈的好奇心和求知欲。废话不多说，直接进入技术实现。
+这样的悲惨经历让我意识到了文本过滤的重要性，也正是如此让我对正则表达式产生了强烈的好奇心和求知欲。正则表达式实际上是一种“表示法”，只要某个工具程序支持这种表示法，就可以用正则表达式来进行字符串的处理。linux上最常见的就是grep，vi，sed，awk等处理文本的工具，其他一些比如cp，mv，ls之类的当然就是无法支持的。
 
 - #### grep
-Bell 和 AT&A 在那时已经是一家了，可以看到那时的通信公司真是一线 IT 公司呢。 
-**C 语言也是 Bell Labs 的产物**，从一开始就是为了用于 Unix 而设计出来的。所以 Unix （在 73 年用 C 重写）在高校流行后，C 语言也获得了广泛支持。
+grep是一个非常常用也非常简单的工具，最基础的就是从文本中抓取带有特殊字符串的某一行或几行。 
+所以最基础的正则表达式练习可以结合grep开始练习，先随便找了一台ubuntu的虚机然后获取/etc/hosts配置文件，显示出具体的行数和断航字符。
+```html
+ubuntu@ip-10-0-0-144:~$ cat -An /etc/hosts
+     1  127.0.0.1 localhost$
+     2  $
+     3  # The following lines are desirable for IPv6 capable hosts$
+     4  ::1 ip6-localhost ip6-loopback$
+     5  fe00::0 ip6-localnet$
+     6  ff00::0 ip6-mcastprefix$
+     7  ff02::1 ip6-allnodes$
+     8  ff02::2 ip6-allrouters$
+     9  ff02::3 ip6-allhosts$
+```
+然后执行几个命令看看能不能达到我们想要的效果获取特定的行。
+grep -n 'localhost' /etc/hosts     打印有localhost字符串的行
+grep -n 'ff0[02]' /etc/hosts       打印有ff00或者ff02的行
+grep -n 'f[^e]' /etc/hosts         打印有f后面不是e的字符串的行
+grep -n '[^[:lower:]]' /etc/hosts  打印含有不是小写字母的字符串的行
+grep -n '^$' /etc/hosts            打印出所有空白行
+grep -n '^[^$]' /etc/hosts         打印出所有非空白行
 
+需要注意的是* 的用法，代表的是重复0个或多个前面的RE字符。因此如果是“f* ”，那么有没有字符其实是都可以显示出来，如果后面再接一个字符的话，则只要含有后面那个字符就可以打印出来。看下面的例子可以作为证明。
+```html
+ubuntu@ip-10-0-0-144:~$ grep -n 'f*t' /etc/hosts
+1:127.0.0.1 localhost
+3:# The following lines are desirable for IPv6 capable hosts
+4:::1 ip6-localhost ip6-loopback
+5:fe00::0 ip6-localnet
+6:ff00::0 ip6-mcastprefix
+8:ff02::2 ip6-allrouters
+9:ff02::3 ip6-allhosts
+```
 
-
-AT&T licensed Unix to outside parties(第三方) from the late 1970s, leading to a variety of both **academic** (最有有名的 BSD ) and **commercial** (Microsoft Xenix, IBM AIX, SunOS Solaris)
-
-- #### sed
+- #### sed工具
 一旦开始使用了sed命令之后，我就再也不愿意使用cut这样的初级命令，因为cut的限制太多用起来太吃力，渐渐发现sed相比之下足够的强大并且最重要的是可以支持正则表达式的使用。
+先来看一下sed工具的基本用法： sed [-nefri] [动作]
+-n 使用安静模式。正常模式中，所有数据都会被列出来，而加上-n之后就只会打印出经过sed处理过的那一行。
+-e 直接在命令行上进行文件编辑并打印出来。
+-f 可以将sed的动作写在一个文件内，后面跟这个文件就可以执行这个动作。
+-r 后面可以支持扩展的正则表达式，不仅限于基础正则表达式。
+-i 直接修改后面接的文件的内容而不只是由屏幕输出。（对于配置文件要慎用，建议还是先确认输出正确再做修改）
+
+动作说明： '[n1[,n2]]function'
+动作参数： a：新增到下一行 c：替换整行 d：删除 i:插入到上一行 p:打印，一般配合sed -n打印选择的数据 s：替换，配合正则表达式。
+
+举例说明上述基本用法，可以自己编辑一个简单的文本然后执行下面的语句看看是否打印出正确的效果。
+```html
+$ cat test.test
+test
+123
+tete
+erererere
+eeeeeeeee
+fefsfddfd
+xcvxvcvcxvxcv
+fdsfsefefefsfefsefef
+```
+假设我们有上述一个名字叫test.test的文件，然后分别执行下面的语句。为了能打印出行号，可以使用nl代替cat。下面的sed直接接动作省略了-e。
+nl test.test | sed '2a test'           第二行下面一行新增一行test
+nl test.test | sed '6,7c test'         第六第七行替换成一行test
+nl test.test | sed '2,5d'              删除第二行到第五行，d后面如果接test会报错
+nl test.test | sed '6,7i test'         第六行和第七行上面分别插入一行test
+nl test.test | sed -n '6,7p'           只打印出6-7行，如果这时候不用-n的话，6-7行会反复输出，这就是安静模式的作用配合p的动作执行
+
+
+- #### sed正则表达
+为了演示一下sed上的正则表达式的用法，我特地找来了做support工作时候的一个日志文件，选取了一行比较复杂的日志来进行sed处理。
+```html
+$ cat test.pid
+2019-10-24 08:23:22.562866 AEDT,"sys_gis","iadpprod",p766178,th-859531392,"10.139.206.158","30904",2019-10-24 08:04:53 AEDT,0,con9683124,cmd16,seg-1,,dx23356519,,sx1,"ERROR","58M01","could not execute command on QE","FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=152199:","command: 'set gp_write_shared_snapshot=true'",,,,"SELECT  COUNT(*) FROM  PM_RECOVERY9 WHERE  REP_GID = $1  AND WFLOW_ID = $2  AND SUBJ_ID = $3  AND TASK_INST_ID = $4  AND TGT_INST_ID = $5",0,,"cdbdisp_query.c",550,
+```
+我如果想要提取FTS以后的字符串一直到包含pid=xxxxxx为止，并且希望整个日志文件其他每一行都要能提取出这个特殊字段，用sed是最佳的方法。如果用cut，我们无法把FTS作为cut的分隔符，也没有办法保证截取到pid=xxxxxx的字符串，因为其他行的pid会是别的号，所以我们就要用sed结合正则表达式来提取。
+思路就是把FTS前面的文字全部替换成空格，再把pid=xxxxxx以后的文字也全部替换成空格，效果就出来了。
+```html
+$ cat test.pid | sed -r 's/.*FTS(.*)pid([^:]*).*/FTS\1pid\2/g'
+FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=152199
+```
+
+- #### 正则表达式字符
+通过上述的命令行来详细介绍一下几个特殊字符的作用。
+^word   待查找的字符串word在行首
+word$   待查找的字符串word在行尾
+.       代表一定有一个任意字符的字符
+*       重复0-无穷多个前一个字符 
+\       转义字符
+[abc]   字符集合中找出含a或b或c的字符串
+[n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
+[^list] 字符集合中找出不是list的字符串
+\{n,m\} 连续n到m个前一个字符
+
+所以在上述命令中 .* 代表任意字符重复多次，（.* ）代表第一个分组是FTS到pid字符串中的字符，([^:]* )代表第二个分组是pid之后，第一个：之前的字符串。然后我们讲整行内容替换成FTS+第一个分组内容+pid+第二个分组内容。显示出来的就是我们要的字段了。
+
+其实上面的过滤方式还有另一种方法也可以做到
+```html
+$ cat test.pid | sed -r 's/^.*FTS/FTS/g' | sed -r 's/pid([^:]*).*$/pid\1/g'
+FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=152199
+```
+通过两个管道分别替换两次，第一次替换FTS前面的部分变成FTS，第二次替换pid到：以后的部分变成pid+分组变量。
+
+
+#### awk以及更多
+其实linux还有更常用更实用的awk命令，awk工具在我之前的support生涯中为我带去很多的便利，利用awk我还写了一个小工具来快速查询我想要的特殊字段。这个就留着作为下一篇博客的题材，总结一下awk的使用方式和我的使用场景以及如何结合shell script写出一个简单实用的脚本供自己反复使用。
 
 
 
-- #### BSD
-**Barkeley Software Distribution**, also called Berkeley Unix. Today the term "BSD" is used to refer to any of the BSD descendants(后代) which together form a branch of the family of Unix-like OS.(共同组成了一个分支)
-	- **BSD 最大的贡献是在 BSD 中率先增加了虚拟存储器和 Internet 协议**，其 TCP/IP(IPv4 only) 代码仍然在现代 OS 上使用（ Microsoft Windows and most of the foundation of Apple's OS X and iOS ）
-	- BSD 后来发展出了众多开源后代，包括 FreeBSD, OpenBSD, NetBSD 等等……很多闭源的 vendor Unix 也都从 BSD 衍生而来。
 
-- #### FreeBSD & Apple
-FreeBSD 不但是 Open Source BSD 中占有率最高的，还直接影响了 Apple Inc : NeXT Computer 的团队在 FreeBSD 上衍生出了 NeXTSTEP 操作系统，这货后来在 Apple 时期演化成了 **Darwin** ，这个“达尔文”居然还是个开源系统，而且是 the Core of **Mac OS X** and **iOS**.
-
-- #### NeXTSTEP
-An **object-oriented**, multitasking OS. Low-level C but High-level OC language and runtime the first time, combined with an **OO aplication layer** and including several "kits".    
-大家都知道 NeXT 是 Steve Jobs 被 forced out of Apple 后和 a few of his coworkers 创办的，所以 **NeXTSTEP 绝对是证明 Jobs 实力的作品。** 
-
-- #### Darwin
-[Darwin](https://en.wikipedia.org/wiki/Darwin_(operating_system)), the core set of components upon which Mac OS X and iOS based, mostly POSIX compatible, but has never, by itself, been certified as being compatible with any version of **POSIX**. (OS X, since Leopard, has been certified as compatible with the Single UNIX Specification version 3)  
-**所以说 Mac OS X 算是很正统 Unix 的了**
-
-- #### POSIX
-可移植操作系统接口, Portable Operating System Interface, is a family of standards specified by the IEEE from maintaining compatibility between OS, defines the API along with Command Line Shells and utility interfaces, for software comaptibility with variants of Unix and other OS.
-	- Fully POSIX compliant:
-		- OS X
-		- QNX OS (BlackBerry)
-	- Mostly complicant:
-		- Linux
-		- OpenBSD/FreeBSD
-		- Darwin (Core of **iOS** & OS X)
-		- **Android**
-	- Complicant via compatibility feature （通过兼容功能实现兼容）
-		- Windows NT Kernel
-			- Windows Server 2000, 2003, 2008, 2008 R2, 2012
-		- Symbian OS (with PIPS)
-			- Symbian was a closed-source OS.
-
-
-## Unix-like
-
-> A Unix-like (sometimes referred to as UN*X or *nix) operating system is one that behaves in a manner similar to a Unix system, while not necessarily conforming to or being certified to any version of the **Single UNIX Specification**.
-
-There is no standard for defining the term.  
-其实 Unix-like 是个相对模糊的概念：
-
-* 最狭义的 Unix 单指 Bell Labs's Unix 
-* 稍广义的 Unix 指代所有 Licensed Unix, 即通过了 SUS 的 Unix-like ，比如 OS X
-* 最广义的 Unix 即所有 Unix-like 系统，无论它是否通过过任何 SUS，包括 Linux，BSD Family 等
-
-#### Single UNIX Specification
-The Single UNIX Specification (SUS) is the collective name of a family of standards for computer OS, compliance with which is required to **qualify for the name "Unix"**, like **POSIX**.
-
-#### Apple iOS
-iOS is a **Unix-like OS based on Darwin(BSD)** and OS X, which share some frameworks including Core Foundation, Founadtion and the Darwin foundation with OS X, but, Unix-like shell access is not avaliable for users and restricted for apps, **making iOS not fully Unix-compatible either.**
-
-The iOS kernal is **XNU**, the kernal of Darwin.
-
-#### XNU Kernel
-XNU, the acronym(首字母缩写) for ***X is Not Unix***, which is the **Computer OS Kernel** developed at Apple Inc since Dec 1996 for use in the Mac OS X and released as free open source software as part of Darwin.
-
-
-## Linux
-
-
-> Linux is a Unix-like and mostly POSIX-compliant computer OS.
-
-
-![Unix_timeline](http://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Unix_timeline.en.svg/800px-Unix_timeline.en.svg.png)
-
-
-#### Linux Kernel
-
-严格来讲，术语 Linux 只表示 [Linux Kernel](http://en.wikipedia.org/wiki/Linux_kernel) 操作系统内核本身，比如说 Android is Based on Linux (Kernel). Linus 编写的也只是这一部分，一个免费的 Unix-like Kernel，并不属于 GNU Project 的一部分。
-
-但通常把 Linux 作为 Linux Kernel 与大量配合使用的 GNU Project Software Kit (包括 Bash, Lib, Compiler, 以及后期的 GUI etc) 所组合成的 OS 的统称。（包括各类 Distribution 发行版）
-
-这类操作系统也被称为 **GNU/Linux**
-
-
-#### GNU Project
-
-The GNU Project is a **free software, mass collaboration** project, which based on the following freedom rights:
-
-* Users are free to run the software, share (copy, distribute), study and modify it.
-* GNU software guarantees these freedom-rights legally (via its license).
-* So it is not only FREE but, more important, FREEDOM.
-
-In order to ensure that the *entire* software of a computer grants its users all freedom rights (use, share, study, modify), even the most fundamental and important part, **the operating system**, needed to be written. 
-
-This OS is decided to called **GNU (a recursive acronym meaning "GNU is not Unix")**. By 1992, the GNU Project had completed all of the major OS components except for their kernel, *GNU Hurd*. 
-
-With the release of the third-party **Linux Kernel**, started independently by *Linus Torvalds* in 1991 and released under the GPLv0.12 in 1992, for the first time it was possible to run an OS **composed completely of free software**.
-
-Though the Linux kernel is not part of the GNU project, it was developed using GCC and other GNU programming tools and was released as free software under the GPL.
-
-Anyway, there eventually comes to the **GNU/Linux**
-
-
-* **GPL**: GNU General Public License
-* **GCC**: GNU Compiler Collection
-
-其他与 GPL 相关的自由/开源软件公共许可证：
-
-* [Mozilla Public License](http://en.wikipedia.org/wiki/Mozilla_Public_License)
-* [MIT License](http://en.wikipedia.org/wiki/MIT_License)
-* [BSD Public License](http://en.wikipedia.org/wiki/BSD_licenses)
-	* GPL 强制后续版本必须是自由软件，而 BSD 的后续可以选择继续开源或者封闭	
-* [Apache License](http://en.wikipedia.org/wiki/Apache_License)
-
-
-![Public License](/img/in-post/open-source-license.png)
-
-#### Android
-
-Android is a mobile OS based on **Linux Kernel**, so it's definitely **Unix-like**.  
-
-**Linux is under GPL so Android has to be open source**. 
-Android's source code is released by Google under open source licenses, although most Android devices ultimately ship with a combination of open source and proprietary software, including proprietary software developed and licensed by Google *(GMS are all proprietary)*  
-
-#### Android Kernel
-  
-Android's kernel is based on one of the Linux kernel's long-term support (LTS) branches.   
-
-**Android's variant of the Linux kernel** has further architectural changes that are implemented by Google outside the typical Linux kernel development cycle, and, certain features that Google contributed back to the Linux kernel. Google maintains a public code repo that contains their experimental work to re-base Android off the latest stable Linux versions.
-
-Android Kernel 大概是 Linux Kernel 最得意的分支了，Android 也是 Linux 最流行的发行版。不过，也有一些 Google 工程师认为 Android is not Linux in the traditional Unix-like Linux distribution sense. 总之这类东西就算有各种协议也还是很难说清楚，在我理解里 Android Kernel 大概就是 fork Linux Kernel 之后改动和定制比较深的例子。
-
-
-#### Android ROM
-
-既然提到 Android 就不得不提提 Android ROM 
-
-ROM 的本义实际上是只读内存：  
-
-**Read-only memory** (ROM) is a class of storage medium used in computers and other electronic devices. Data stored in ROM can only be modified slowly, with difficulty, or not at all, so it is **mainly used to distribute firmware (固件)** (software that is very closely tied to specific hardware, and unlikely to need frequent updates).
-
-ROM 在发展的过程中不断进化，从只读演变成了可编程可擦除，并最终演化成了 Flash  
-
-* PROM (Programmable read-only memory)
-* EPROM (Erasable programmable read-only memory)
-* EEPROM (Electrically erasable programmable read-only memory)
-	* Flash memory (闪存) 
-
-Flash 的出现是历史性的，它不但可以作为 ROM 使用，又因其极高的读写速度和稳定性，先后发展成为U盘（USB flash drives）、移动设备主要内置存储，和虐机械硬盘几条街的固态硬盘（SSD），可以说这货基本统一了高端存储市场的技术规格。
-
-所以我们平时习惯说的 ROM 其实还是来源于老单片机时代，那时的 ROM 真的是写了就很难（需要上电复位）、甚至无法修改，所以那时往 ROM 里烧下去的程序就被称作 firmware ，固件。久而久之，虽然技术发展了，固件仍然指代那些不常需要更新的软件，而 ROM 这个词也就这么沿用下来了。
-
-所以在 wiki 里是没有 Android ROM 这个词条的，只有 [List of custom Android firmwares](http://en.wikipedia.org/wiki/List_of_custom_Android_firmwares)
-
-> A custom firmware, also known as a custom ROM, ROM, or custom OS, is an aftermarket distribution of the Android operating system. They are based on the Android Open Source Project (AOSP), hence most are open-sourced releases, unlike proprietary modifications by device manufacturers.
-
-各类 Android ROM 在 Android 词类下也都是属于 **Forks and distributions** 一类的。
-
-所以我说，其实各类 Android ROM 也好，fork Android 之流的 YunOS、FireOS 也好，改了多少东西，碰到多深的 codebase ……**其实 ROM 和 Distribution OS 的界限是很模糊的**，为什么 Android 就不可以是移动时代的 Linux ，为什么 Devlik/ART 就不能是移动时代的 GCC 呢？
-
-#### Chrome OS
-
-Chrome OS is an operating system based on the **Linux kernel** and designed by Google to work with web applications and installed applications. 
-
-虽然目前只是个 Web Thin Client OS ，但是 RoadMap 非常酷……
-
-* **Chrome Packaged Application** (Support working offline and installed)
-* **Android App Runtime** (run Android applications natively...fxxking awesome)
-
-平复一下激动的心情，还是回到正题来：
-
-#### Chromium OS
-
-Chrome OS is based on Chromium OS, which is the open-source development version of Chrome OS, which is a **Linux distribution** designed by Google.
-
-For Detail, Chromium OS based on [Gentoo Linux](http://en.wikipedia.org/wiki/Gentoo_Linux), emm...
 
