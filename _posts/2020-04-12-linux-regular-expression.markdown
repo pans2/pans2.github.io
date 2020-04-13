@@ -11,14 +11,14 @@ tags:
 ---
 
 > This document is not completed and will be updated anytime.
-> 会持续不断地补充更多正则表达式的案例到文章中
+<br>> 会持续不断地补充更多正则表达式的案例到文章中
 
 
 ## Linux 
 
 
 > 纪念走进IT世界的第一扇门
-> Linux is a Unix-like and mostly POSIX-compliant computer OS.
+<br>> Linux is a Unix-like and mostly POSIX-compliant computer OS.
 
 当年刚刚走出大学校门踏入社会，接触到的第一份工作就是IT届存储大厂的technical support。从未接触过操作系统的我开启了这扇通往技术道路的大门，也是为了纪念最初，把这篇开山博客献给我热爱的**linux系统**以及曾经工作中经常用到的工具，**正则表达式**。
 
@@ -33,7 +33,7 @@ tags:
 
 - #### grep
 grep是一个非常常用也非常简单的工具，最基础的就是从文本中抓取带有特殊字符串的某一行或几行。 
-所以最基础的正则表达式练习可以结合grep开始练习，先随便找了一台ubuntu的虚机然后获取/etc/hosts配置文件，显示出具体的行数和断航字符。
+所以最基础的正则表达式练习可以结合grep开始，先随便找了一台ubuntu的虚机然后获取/etc/hosts配置文件，显示出具体的行数和断行字符。
 ```html
 ubuntu@ip-10-0-0-144:~$ cat -An /etc/hosts
      1  127.0.0.1 localhost$
@@ -47,12 +47,12 @@ ubuntu@ip-10-0-0-144:~$ cat -An /etc/hosts
      9  ff02::3 ip6-allhosts$
 ```
 然后执行几个命令看看能不能达到我们想要的效果获取特定的行。
-grep -n 'localhost' /etc/hosts     打印有localhost字符串的行
-grep -n 'ff0[02]' /etc/hosts       打印有ff00或者ff02的行
-grep -n 'f[^e]' /etc/hosts         打印有f后面不是e的字符串的行
-grep -n '[^[:lower:]]' /etc/hosts  打印含有不是小写字母的字符串的行
-grep -n '^$' /etc/hosts            打印出所有空白行
-grep -n '^[^$]' /etc/hosts         打印出所有非空白行
+<br> grep -n 'localhost' /etc/hosts     打印有localhost字符串的行
+<br>grep -n 'ff0[02]' /etc/hosts       打印有ff00或者ff02的行
+<br> grep -n 'f[^e]' /etc/hosts         打印有f后面不是e的字符串的行
+<br> grep -n '[^[:lower:]]' /etc/hosts  打印含有不是小写字母的字符串的行
+<br> grep -n '^$' /etc/hosts            打印出所有空白行
+<br> grep -n '^[^$]' /etc/hosts         打印出所有非空白行
 
 需要注意的是* 的用法，代表的是重复0个或多个前面的RE字符。因此如果是“f* ”，那么有没有字符其实是都可以显示出来，如果后面再接一个字符的话，则只要含有后面那个字符就可以打印出来。看下面的例子可以作为证明。
 ```html
@@ -68,15 +68,14 @@ ubuntu@ip-10-0-0-144:~$ grep -n 'f*t' /etc/hosts
 
 - #### sed工具
 一旦开始使用了sed命令之后，我就再也不愿意使用cut这样的初级命令，因为cut的限制太多用起来太吃力，渐渐发现sed相比之下足够的强大并且最重要的是可以支持正则表达式的使用。
-先来看一下sed工具的基本用法： sed [-nefri] [动作]
--n 使用安静模式。正常模式中，所有数据都会被列出来，而加上-n之后就只会打印出经过sed处理过的那一行。
--e 直接在命令行上进行文件编辑并打印出来。
--f 可以将sed的动作写在一个文件内，后面跟这个文件就可以执行这个动作。
--r 后面可以支持扩展的正则表达式，不仅限于基础正则表达式。
--i 直接修改后面接的文件的内容而不只是由屏幕输出。（对于配置文件要慎用，建议还是先确认输出正确再做修改）
-
-动作说明： '[n1[,n2]]function'
-动作参数： a：新增到下一行 c：替换整行 d：删除 i:插入到上一行 p:打印，一般配合sed -n打印选择的数据 s：替换，配合正则表达式。
+<br> 先来看一下sed工具的基本用法： sed [-nefri] [动作]
+<br> -n 使用安静模式。正常模式中，所有数据都会被列出来，而加上-n之后就只会打印出经过sed处理过的那一行。
+<br> -e 直接在命令行上进行文件编辑并打印出来。
+<br> -f 可以将sed的动作写在一个文件内，后面跟这个文件就可以执行这个动作。
+<br> -r 后面可以支持扩展的正则表达式，不仅限于基础正则表达式。
+<br> -i 直接修改后面接的文件的内容而不只是由屏幕输出。（对于配置文件要慎用，建议还是先确认输出正确再做修改）
+<br> 动作说明： '[n1[,n2]]function'
+<br> 动作参数： a：新增到下一行 c：替换整行 d：删除 i:插入到上一行 p:打印，一般配合sed -n打印选择的数据 s：替换，配合正则表达式。
 
 举例说明上述基本用法，可以自己编辑一个简单的文本然后执行下面的语句看看是否打印出正确的效果。
 ```html
@@ -91,11 +90,11 @@ xcvxvcvcxvxcv
 fdsfsefefefsfefsefef
 ```
 假设我们有上述一个名字叫test.test的文件，然后分别执行下面的语句。为了能打印出行号，可以使用nl代替cat。下面的sed直接接动作省略了-e。
-nl test.test | sed '2a test'           第二行下面一行新增一行test
-nl test.test | sed '6,7c test'         第六第七行替换成一行test
-nl test.test | sed '2,5d'              删除第二行到第五行，d后面如果接test会报错
-nl test.test | sed '6,7i test'         第六行和第七行上面分别插入一行test
-nl test.test | sed -n '6,7p'           只打印出6-7行，如果这时候不用-n的话，6-7行会反复输出，这就是安静模式的作用配合p的动作执行
+<br> nl test.test | sed '2a test'           第二行下面一行新增一行test
+<br> nl test.test | sed '6,7c test'         第六第七行替换成一行test
+<br> nl test.test | sed '2,5d'              删除第二行到第五行，d后面如果接test会报错
+<br> nl test.test | sed '6,7i test'         第六行和第七行上面分别插入一行test
+<br> nl test.test | sed -n '6,7p'           只打印出6-7行，如果这时候不用-n的话，6-7行会反复输出，这就是安静模式的作用配合p的动作执行
 
 
 - #### sed正则表达
@@ -113,15 +112,15 @@ FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=15
 
 - #### 正则表达式字符
 通过上述的命令行来详细介绍一下几个特殊字符的作用。
-^word   待查找的字符串word在行首
-word$   待查找的字符串word在行尾
-.       代表一定有一个任意字符的字符
-*       重复0-无穷多个前一个字符 
-\       转义字符
-[abc]   字符集合中找出含a或b或c的字符串
-[n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
-[^list] 字符集合中找出不是list的字符串
-\{n,m\} 连续n到m个前一个字符
+<br> ^word   待查找的字符串word在行首
+<br> word$   待查找的字符串word在行尾
+<br> .       代表一定有一个任意字符的字符
+<br> *       重复0-无穷多个前一个字符 
+<br> \       转义字符
+<br> [abc]   字符集合中找出含a或b或c的字符串
+<br> [n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
+<br> [^list] 字符集合中找出不是list的字符串
+<br> \{n,m\} 连续n到m个前一个字符
 
 所以在上述命令中 .* 代表任意字符重复多次，（.* ）代表第一个分组是FTS到pid字符串中的字符，([^:]* )代表第二个分组是pid之后，第一个：之前的字符串。然后我们讲整行内容替换成FTS+第一个分组内容+pid+第二个分组内容。显示出来的就是我们要的字段了。
 
