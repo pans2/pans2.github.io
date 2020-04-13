@@ -103,17 +103,18 @@ nl test.test | sed -n '6,7p'           只打印出6-7行，如果这时候不�
 为了演示一下sed上的正则表达式的用法，我特地找来了做support工作时候的一个日志文件，选取了一行比较复杂的日志来进行sed处理。
 ```html
 $ cat test.pid
-2019-10-24 08:23:22.562866 AEDT,"sys_gis","iadpprod",p766178,th-859531392,"10.139.206.158","30904",2019-10-24 08:04:53 AEDT,0,con9683124,cmd16,seg-1,,dx23356519,,sx1,"ERROR","58M01","could not execute command on QE","FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=152199:","command: 'set gp_write_shared_snapshot=true'",,,,"SELECT  COUNT(*) FROM  PM_RECOVERY9 WHERE  REP_GID = $1  AND WFLOW_ID = $2  AND SUBJ_ID = $3  AND TASK_INST_ID = $4  AND TGT_INST_ID = $5",0,,"cdbdisp_query.c",550,
+2019-10-24 08:23:22.562866 AEDT,"sys_gis","iadpprod",p766178,th-859531392,"xx.xxx.xxx.xxx","30904",2019-10-24 08:04:53 AEDT,0,con9683124,cmd16,seg-1,,dx23356519,,sx1,"ERROR","58M01","could not execute command on QE","FTS detected connection lost during dispatch to seg29 xxx.xxx.xx.xx:50005 pid=152199:","command: 'set gp_write_shared_snapshot=true'",,,,"SELECT  COUNT(*) FROM  PM_RECOVERY9 WHERE  REP_GID = $1  AND WFLOW_ID = $2  AND SUBJ_ID = $3  AND TASK_INST_ID = $4  AND TGT_INST_ID = $5",0,,"cdbdisp_query.c",550,
 ```
 我如果想要提取FTS以后的字符串一直到包含pid=xxxxxx为止，并且希望整个日志文件其他每一行都要能提取出这个特殊字段，用sed是最佳的方法。如果用cut，我们无法把FTS作为cut的分隔符，也没有办法保证截取到pid=xxxxxx的字符串，因为其他行的pid会是别的号，所以我们就要用sed结合正则表达式来提取。
 思路就是把FTS前面的文字全部替换成空格，再把pid=xxxxxx以后的文字也全部替换成空格，效果就出来了。
 ```html
 $ cat test.pid | sed -r 's/.*FTS(.*)pid([^:]*).*/FTS\1pid\2/g'
-FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=152199
+FTS detected connection lost during dispatch to seg29 xxx.xxx.xx.xx:50005 pid=152199
 ```
 
 - #### 正则表达式字符
 通过上述的命令行来详细介绍一下几个特殊字符的作用。
+```html
 <br> ^word   待查找的字符串word在行首
 <br> word$   待查找的字符串word在行尾
 <br> .       代表一定有一个任意字符的字符
@@ -123,13 +124,14 @@ FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=15
 <br> [n1-n2] 字符集合中找出想要选区的字符范围，连续性根据ASCII编码而定
 <br> [^list] 字符集合中找出不是list的字符串
 <br> \{n,m\} 连续n到m个前一个字符
+```
 
 所以在上述命令中 .* 代表任意字符重复多次，（.* ）代表第一个分组是FTS到pid字符串中的字符，([^:]* )代表第二个分组是pid之后，第一个：之前的字符串。然后我们讲整行内容替换成FTS+第一个分组内容+pid+第二个分组内容。显示出来的就是我们要的字段了。
 
 其实上面的过滤方式还有另一种方法也可以做到
 ```html
 $ cat test.pid | sed -r 's/^.*FTS/FTS/g' | sed -r 's/pid([^:]*).*$/pid\1/g'
-FTS detected connection lost during dispatch to seg29 192.168.99.24:50005 pid=152199
+FTS detected connection lost during dispatch to seg29 xxx.xxx.xx.xx:50005 pid=152199
 ```
 通过两个管道分别替换两次，第一次替换FTS前面的部分变成FTS，第二次替换pid到：以后的部分变成pid+分组变量。
 
