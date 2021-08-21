@@ -1,0 +1,9 @@
+MTU
+聊一聊网络中有趣的MTU
+
+首先不得不讲一下MTU的全称，maximum transition unit。代表了数据链路层的payload大小。
+一般来说数据链路层可以传输的最大单元是1518 bytes, 1518减去14个MAC字节头部以及4个CRC，就是1500也就是我们常说的MTU。
+
+在TCP交互中，我们常常使用MSS来协商最大单元，也就是tcp可以携带的最大payload，相比MTU来说，MSS就是在MTU的基础上减掉IP包头和TCP包头，也就是1500-20-20=1460 bytes。
+在三次握手的时候接收方和发送方都会声明自己MSS，因为接收方和发送方的MTU可能是不同的，最终会以较小的MSS为准。我们也常常用ICMP ping来测试一条路径上可以接受的最大payload是多少从而计算出MSS的值。
+
